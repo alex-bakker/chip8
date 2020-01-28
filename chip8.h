@@ -30,6 +30,8 @@ class Chip8 {
         std::stack<short> stack;
         unsigned char keyboard[16];
 
+        bool drawFlag;
+
     public:
         static const int MEM_START;
         void cycle();
