@@ -1,0 +1,39 @@
+#include <stack>
+#include <string>
+
+class Chip8 {
+    private:
+        //60 Hertz timers
+        unsigned char delayTimer;
+        unsigned char soundTimer;
+
+        //Special 16 bit registers
+        unsigned short I;
+        unsigned short PC;
+
+        //Holds the current screen
+        unsigned char display[64 * 32];
+
+        //General 8-bit registers
+        unsigned char reg[16];
+
+        //Virtual memory
+        unsigned char memory[4096];
+
+        //Hold the current opcode
+        unsigned short opcode;
+
+        //Stack functionality for procedure calls
+        std::stack<short> stack;
+
+        //Store the current state of the key
+        std::stack<short> stack;
+        unsigned char keyboard[16];
+
+    public:
+        static const int MEM_START;
+        void cycle();
+        void init();
+        void loadRom(std::string rom);
+        Chip8();
+};
