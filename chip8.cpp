@@ -1,18 +1,40 @@
-#include <chip8.h>
+#include "chip8.h"
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <random>
+
+unsigned char fontset[80] =
+{ 
+  0xF0, 0x90, 0x90, 0x90, 0xF0, 
+  0x20, 0x60, 0x20, 0x20, 0x70, 
+  0xF0, 0x10, 0xF0, 0x80, 0xF0, 
+  0xF0, 0x10, 0xF0, 0x10, 0xF0, 
+  0x90, 0x90, 0xF0, 0x10, 0x10, 
+  0xF0, 0x80, 0xF0, 0x10, 0xF0, 
+  0xF0, 0x80, 0xF0, 0x90, 0xF0, 
+  0xF0, 0x10, 0x20, 0x40, 0x40, 
+  0xF0, 0x90, 0xF0, 0x90, 0xF0, 
+  0xF0, 0x90, 0xF0, 0x10, 0xF0, 
+  0xF0, 0x90, 0xF0, 0x90, 0x90, 
+  0xE0, 0x90, 0xE0, 0x90, 0xE0, 
+  0xF0, 0x80, 0x80, 0x80, 0xF0, 
+  0xE0, 0x90, 0x90, 0x90, 0xE0, 
+  0xF0, 0x80, 0xF0, 0x80, 0xF0, 
+  0xF0, 0x80, 0xF0, 0x80, 0x80  
+};
 
 //Start storing 512 since that space was originally for this interpreter
 const int Chip8::MEM_START = 0x200;
 
-Chip8::Chip8() {
+Chip8::Chip8(std::string rom) {
     init();
+    loadRom(rom);
 }
 
 void Chip8::init() {
-    for(int i = 0; i < 4096; i++){
+    for(int i = 80; i < 4096; i++){
         memory[i] = 0;
     }
     for(int i = 0; i < 16; i++){
@@ -25,14 +47,17 @@ void Chip8::init() {
     while(stack.empty()){
         stack.pop();
     }
+
+    for(int i = 0; i < 80; i++){
+        memory[i] = fontset[i];
+    }
+
     delayTimer = 0;
     soundTimer = 0;
 
     PC = MEM_START;
     opcode = 0;
     I = 0;
-
-    //TODO: Load in the fontset
 }
 
 //Load the specified rom into our 'memory'
@@ -61,7 +86,13 @@ void Chip8::cycle() {
 
     //Used for convenience
     unsigned short X = (opcode & 0x0F00) >> 8;
-    unsigned short Y = (opcode & 0x00X0) >> 4;
+    unsigned short Y = (opcode & 0x00F0) >> 4;
+
+    unsigned short xCord;
+    unsigned short yCord;
+    unsigned short height;
+
+    bool keyPressed;
 
     //Take action based on the specific opcode.
     switch(opcode & 0xF000) {
@@ -170,31 +201,121 @@ void Chip8::cycle() {
                     break;
                 default:
                     //Invalid opcode
+                    break;
             }
             break;
-            
+        case 0x9000:
+            if(reg[X] != reg[Y])
+                PC += 2;
+            PC += 2;
+            break;
+        case 0xA000:
+            I = opcode & 0x0FFF;
+            PC += 2;
+            break;
+        case 0xB000:
+            PC = reg[0] + (opcode & 0x0FFF);
+            PC += 2;
+            break;
+        case 0xC000:
+            reg[X] = (rand() % 256) & (opcode & 0x00FF);
+            PC += 2;
+            break;
+        case 0xD000:
+        {
+            xCord = reg[X];
+            yCord = reg[Y];
+            height = opcode & 0x000F;
+            reg[0xF] = 0;
+            for(int j = 0; j < height; j ++){
+                unsigned char row = memory[I + j];
+                for(int k = 0; k < 8; k++){
+                    if(row & (0x80 >> k) != 0){
+                        if(display[(xCord + k) + 64 * (yCord + j) == 0])
+                            reg[0xF] = 1;
+                        display[(xCord + k) + 64 * (yCord + j)] ^= 1;
+                    }
+                }
+            }
+            drawFlag = true;
+            PC += 2;
+            break;
+        }
+        case 0xE000:
+            switch(opcode & 0x000F){
+                case 0xE:
+                    if(keyboard[reg[X]] == 1)
+                        PC += 2;
+                    PC += 2;
+                    break;
+                case 0x1:
+                    if(keyboard[reg[X]] != 1)
+                        PC += 2;
+                    PC += 2;
+                    break;
+                default:
+                    //Invalid opcode
+                    break;
+            }
+        case 0xF000:
+            switch(opcode & 0x00FF){
+                case 0x07:
+                    reg[X] = delayTimer;
+                    PC += 2;
+                    break;
+                case 0x0A:
+                    keyPressed = false;
+                    for(int i = 0; i < 16; i++){
+                        bool keyPressed = false;
+                        if(keyboard[i] == 1){
+                            keyPressed = true;
+                            reg[X] = i;
+                        }
+                    }
+                    if(!keyPressed)
+                        return;
+                    PC += 2;
+                    break;
+                case 0x15:
+                    delayTimer = reg[X];
+                    PC += 2;
+                    break;
+                case 0x18:
+                    soundTimer = reg[X];
+                    PC += 2;
+                    break;
+                case 0x1E:
+                    I += reg[X];
+                    PC += 2;
+                    break;
+                case 0x29:
+                    I = reg[X] * 5; //Font is stored beginning at index 0!
+                    PC += 2;
+                    break;
+                case 0x33:
+                    memory[I] = reg[X] / 100;
+                    memory[I+1] = (reg[X] / 10) % 10;
+                    memory[I+2] = reg[X] % 10;
+                    PC += 2;
+                    break;
+                case 0x55:
+                    for(int i = 0; i <= X; i++){
+                        memory[I + i] = reg[i];
+                    }
+                    PC += 2;
+                    break;
+                case 0x65:
+                    for(int i = 0; i <= X; i++){
+                        reg[i] = memory[I + i];
+                    }
+                    PC += 2;
+                    break;
+                default:
+                    //Invalid opcode
+                    break;
+            }
+        default:
+            //Invalid opcode
+            break;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -27,7 +27,6 @@ class Chip8 {
         std::stack<short> stack;
 
         //Store the current state of the key
-        std::stack<short> stack;
         unsigned char keyboard[16];
 
         bool drawFlag;
@@ -37,5 +36,5 @@ class Chip8 {
         void cycle();
         void init();
         void loadRom(std::string rom);
-        Chip8();
+        Chip8(std::string rom);
 };
