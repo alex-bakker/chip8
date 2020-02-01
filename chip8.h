@@ -11,9 +11,6 @@ class Chip8 {
         unsigned short I;
         unsigned short PC;
 
-        //Holds the current screen
-        unsigned char display[64 * 32];
-
         //General 8-bit registers
         unsigned char reg[16];
 
@@ -29,12 +26,16 @@ class Chip8 {
         //Store the current state of the key
         unsigned char keyboard[16];
 
-        bool drawFlag;
-
     public:
+
+        //Holds the current screen
+        unsigned char display[64 * 32];
+
         static const int MEM_START;
+        bool drawFlag;
         void cycle();
         void init();
         void loadRom(std::string rom);
+        void updateKey(int index, char val);
         Chip8(std::string rom);
 };

@@ -41,10 +41,10 @@ void Chip8::init() {
         keyboard[i] = 0;
         reg[i] = 0;
     }
-    for(int i = 0; i < 64 * 32; i++){
+    for(int i = 0; i < 2048; i++){
         display[i] = 0;
     }
-    while(stack.empty()){
+    while(!stack.empty()){
         stack.pop();
     }
 
@@ -79,9 +79,14 @@ void Chip8::loadRom(std::string rom) {
     }
 }
 
+//Update the internal key register
+void Chip8::updateKey(int index, char val){
+    keyboard[index] = val;
+}
+
 void Chip8::cycle() {
     //Load in the current opcode
-    opcode = memory[PC] << 8 | memory[PC + 1];
+    opcode = (memory[PC] << 8) | (memory[PC + 1]);
     drawFlag = false;
 
     //Used for convenience
@@ -94,12 +99,14 @@ void Chip8::cycle() {
 
     bool keyPressed;
 
+    std::cout << opcode << std::endl;
+
     //Take action based on the specific opcode.
     switch(opcode & 0xF000) {
         case 0x0000:
             switch(opcode & 0x000F){
                 case 0x0000:
-                    for(int i = 0; i < 64*32; i++){
+                    for(int i = 0; i < 2048; i++){
                         display[i] = 0;
                     }
                     PC += 2;
@@ -111,13 +118,13 @@ void Chip8::cycle() {
                     stack.pop();
                     break;
                 default:
-                    //Invalid opcode
+                    std::cout << "INVALID" << std::endl;
                     break; 
              }
              break;
 
         case 0x1000:
-            PC =  opcode & 0x0FFF;
+            PC = opcode & 0x0FFF;
             break;
         case 0x2000:
             stack.push(PC);
@@ -173,10 +180,10 @@ void Chip8::cycle() {
                     PC += 2;
                     break;
                 case 0x0005:
-                    if(reg[X] > (reg[Y]))
-                        reg[0xF] = 0;
-                    else
+                    if(reg[X] >= (reg[Y]))
                         reg[0xF] = 1;
+                    else
+                        reg[0xF] = 0;
                     reg[X] -= reg[Y];
                     PC += 2;
                     break;
@@ -187,9 +194,9 @@ void Chip8::cycle() {
                     break;
                 case 0x0007:
                     if(reg[X] > (reg[Y]))
-                        reg[0xF] = 1;
-                    else
                         reg[0xF] = 0;
+                    else
+                        reg[0xF] = 1;
 
                     reg[X] = reg[Y] - reg[X];
                     PC += 2;
@@ -200,7 +207,7 @@ void Chip8::cycle() {
                     PC += 2;
                     break;
                 default:
-                    //Invalid opcode
+                    std::cout << "INVALID" << std::endl;
                     break;
             }
             break;
@@ -215,55 +222,53 @@ void Chip8::cycle() {
             break;
         case 0xB000:
             PC = reg[0] + (opcode & 0x0FFF);
-            PC += 2;
             break;
         case 0xC000:
             reg[X] = (rand() % 256) & (opcode & 0x00FF);
             PC += 2;
             break;
         case 0xD000:
-        {
             xCord = reg[X];
             yCord = reg[Y];
             height = opcode & 0x000F;
             reg[0xF] = 0;
-            for(int j = 0; j < height; j ++){
+            for(int j = 0; j < height; j++){
                 unsigned char row = memory[I + j];
                 for(int k = 0; k < 8; k++){
                     if(row & (0x80 >> k) != 0){
-                        if(display[(xCord + k) + 64 * (yCord + j) == 0])
+                        if(display[(xCord + k) + (64 * (yCord + j))] == 0)
                             reg[0xF] = 1;
-                        display[(xCord + k) + 64 * (yCord + j)] ^= 1;
+                        display[(xCord + k) + (64 * (yCord + j))] ^= 1;
                     }
                 }
             }
             drawFlag = true;
             PC += 2;
             break;
-        }
         case 0xE000:
             switch(opcode & 0x000F){
-                case 0xE:
+                case 0x000E:
                     if(keyboard[reg[X]] == 1)
                         PC += 2;
                     PC += 2;
                     break;
-                case 0x1:
+                case 0x0001:
                     if(keyboard[reg[X]] != 1)
                         PC += 2;
                     PC += 2;
                     break;
                 default:
-                    //Invalid opcode
+                    std::cout << "INVALID" << std::endl;
                     break;
             }
+            break;
         case 0xF000:
             switch(opcode & 0x00FF){
-                case 0x07:
+                case 0x0007:
                     reg[X] = delayTimer;
                     PC += 2;
                     break;
-                case 0x0A:
+                case 0x000A:
                     keyPressed = false;
                     for(int i = 0; i < 16; i++){
                         bool keyPressed = false;
@@ -276,46 +281,55 @@ void Chip8::cycle() {
                         return;
                     PC += 2;
                     break;
-                case 0x15:
+                case 0x0015:
                     delayTimer = reg[X];
                     PC += 2;
                     break;
-                case 0x18:
+                case 0x0018:
                     soundTimer = reg[X];
                     PC += 2;
                     break;
-                case 0x1E:
+                case 0x001E:
+                    if(I + reg[X] > 0xFFF)
+                        reg[0xF] = 1;
+                    else
+                        reg[0xF] = 0;
                     I += reg[X];
                     PC += 2;
                     break;
-                case 0x29:
+                case 0x0029:
                     I = reg[X] * 5; //Font is stored beginning at index 0!
                     PC += 2;
                     break;
-                case 0x33:
+                case 0x0033:
                     memory[I] = reg[X] / 100;
                     memory[I+1] = (reg[X] / 10) % 10;
                     memory[I+2] = reg[X] % 10;
                     PC += 2;
                     break;
-                case 0x55:
+                case 0x0055:
                     for(int i = 0; i <= X; i++){
                         memory[I + i] = reg[i];
                     }
                     PC += 2;
                     break;
-                case 0x65:
+                case 0x0065:
                     for(int i = 0; i <= X; i++){
                         reg[i] = memory[I + i];
                     }
                     PC += 2;
                     break;
                 default:
-                    //Invalid opcode
+                    std::cout << "INVALID" << std::endl;
                     break;
             }
+            break;
         default:
-            //Invalid opcode
+            std::cout << "INVALID" << std::endl;
             break;
     }
+    if (delayTimer > 0)
+        delayTimer--;
+    if (soundTimer > 0)
+        soundTimer--;
 }
