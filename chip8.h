@@ -4,38 +4,38 @@
 class Chip8 {
     private:
         //60 Hertz timers
-        unsigned char delayTimer;
-        unsigned char soundTimer;
+        uint8_t delayTimer;
+        uint8_t soundTimer;
 
         //Special 16 bit registers
-        unsigned short I;
-        unsigned short PC;
+        uint16_t I;
+        uint16_t PC;
 
         //General 8-bit registers
-        unsigned char reg[16];
+        uint8_t reg[16];
 
         //Virtual memory
-        unsigned char memory[4096];
+        uint8_t memory[4096];
 
         //Hold the current opcode
-        unsigned short opcode;
+        uint16_t opcode;
 
         //Stack functionality for procedure calls
-        std::stack<short> stack;
+        std::stack<uint16_t> stack;
 
         //Store the current state of the key
-        unsigned char keyboard[16];
+        uint8_t keyboard[16];
 
     public:
 
         //Holds the current screen
-        unsigned char display[64 * 32];
+        uint8_t display[64 * 32];
 
         static const int MEM_START;
         bool drawFlag;
         void cycle();
         void init();
         void loadRom(std::string rom);
-        void updateKey(int index, char val);
+        void updateKey(int index, uint8_t val);
         Chip8(std::string rom);
 };

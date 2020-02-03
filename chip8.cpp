@@ -80,7 +80,7 @@ void Chip8::loadRom(std::string rom) {
 }
 
 //Update the internal key register
-void Chip8::updateKey(int index, char val){
+void Chip8::updateKey(int index, uint8_t val){
     keyboard[index] = val;
 }
 
@@ -99,7 +99,7 @@ void Chip8::cycle() {
 
     bool keyPressed;
 
-    std::cout << opcode << std::endl;
+    std::cout << "PC = " << PC << " : " << std::hex << opcode << "(" << std::dec << opcode << ")" << std::endl;
 
     //Take action based on the specific opcode.
     switch(opcode & 0xF000) {
@@ -131,12 +131,12 @@ void Chip8::cycle() {
             PC = opcode & 0x0FFF;
             break;
         case 0x3000:
-            if(reg[X] == opcode & 0x00FF)
+            if(reg[X] == (opcode & 0x00FF))
                 PC += 2;
             PC += 2;
             break;
         case 0x4000:
-            if(reg[X] != opcode & 0x00FF)
+            if(reg[X] != (opcode & 0x00FF))
                 PC += 2;
             PC += 2;
             break; 
@@ -146,15 +146,15 @@ void Chip8::cycle() {
             PC += 2;
             break;
         case 0x6000:
-            reg[X] = opcode & 0x00FF;
+            reg[X] = (opcode & 0x00FF);
             PC += 2;
             break;
         case 0x7000:
-            reg[X] += opcode & 0x00FF;
+            reg[X] += (opcode & 0x00FF);
             PC += 2;
             break;
         case 0x8000:
-            switch(opcode & 0x000F){
+            switch(opcode & 0x000F){ 
                 case 0x0000:
                     reg[X] = reg[Y];
                     PC += 2;
@@ -189,7 +189,7 @@ void Chip8::cycle() {
                     break;
                 case 0x0006:
                     reg[0xF] = reg[X] & 0x1;
-                    reg[X] >>= 0x1;
+                    reg[X] >>= 1;
                     PC += 2;
                     break;
                 case 0x0007:
@@ -203,7 +203,7 @@ void Chip8::cycle() {
                     break;
                 case 0x000E:
                     reg[0xF] = reg[X] >> 7;
-                    reg[X] <<= 0x1;
+                    reg[X] <<= 1;
                     PC += 2;
                     break;
                 default:
@@ -235,8 +235,8 @@ void Chip8::cycle() {
             for(int j = 0; j < height; j++){
                 unsigned char row = memory[I + j];
                 for(int k = 0; k < 8; k++){
-                    if(row & (0x80 >> k) != 0){
-                        if(display[(xCord + k) + (64 * (yCord + j))] == 0)
+                    if((row & (0x80 >> k)) != 0){
+                        if(display[(xCord + k) + (64 * (yCord + j))] == 1)
                             reg[0xF] = 1;
                         display[(xCord + k) + (64 * (yCord + j))] ^= 1;
                     }

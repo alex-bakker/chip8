@@ -69,7 +69,7 @@ int main (int argc, char *args[]){
 
             gs->draw(display);
         }
-        SDL_Delay(100);
+        SDL_Delay(20);
     }
     delete gs;
     delete chip;
