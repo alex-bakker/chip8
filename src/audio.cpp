@@ -4,7 +4,7 @@ Audio::Audio() {
     SDL_InitSubSystem(SDL_INIT_AUDIO);
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
     Mix_Volume(2, MIX_MAX_VOLUME / 10);
-    beep = Mix_LoadWAV("beep.wav");
+    beep = Mix_LoadWAV("resources/beep.wav");
 }
 
 Audio::~Audio(){
