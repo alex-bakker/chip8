@@ -4,7 +4,7 @@
 Defintion of the GameScreen class to handle all graphics
 */
 
-void GameScreen::draw(Uint32 pixels[]){
+void GameScreen::draw(){
     SDL_UpdateTexture(texture, NULL, pixels, 64 * sizeof(Uint32));
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
@@ -12,7 +12,7 @@ void GameScreen::draw(Uint32 pixels[]){
 }
 
 GameScreen::GameScreen() {
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_InitSubSystem(SDL_INIT_VIDEO);
     window = SDL_CreateWindow("CHIP-8", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, 0);
     SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
@@ -26,5 +26,5 @@ GameScreen::~GameScreen() {
     SDL_Quit();
 }
 
-const int GameScreen::HEIGHT = 800;
-const int GameScreen::WIDTH = 1600;
+const int GameScreen::HEIGHT = 640;
+const int GameScreen::WIDTH = 1280;

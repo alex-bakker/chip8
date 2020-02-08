@@ -1,6 +1,10 @@
 #include "graphics.h"
+#include "audio.h"
 #include "chip8.h"
 #include <iostream>
+#include <string>
+
+int GAME_DELAY;
 
 char keyMapping[16] = 
 {
@@ -23,6 +27,17 @@ char keyMapping[16] =
 };
 
 int main (int argc, char *args[]){
+
+    if(argc != 3){
+        std::cerr << "ERROR - incorrect paramters. Required: ROM(String) Delay(Int)" << std::endl;
+        exit(1);
+    }
+
+    GAME_DELAY = std::stoi(args[2]);
+
+    //Initialize our audio driver
+    Audio *audio = new Audio();
+
     //Initialize the display
     GameScreen *gs = new GameScreen();
 
@@ -31,9 +46,6 @@ int main (int argc, char *args[]){
     
     //Store current key events
     SDL_Event e;
-
-    //Pixel buffer
-    Uint32 display[2048];
 
     //Game loop
     bool quit = false;
@@ -48,29 +60,33 @@ int main (int argc, char *args[]){
 
             if(e.type == SDL_KEYDOWN){
                 for(int i = 0; i < 16; i++){
-                    if(e.key.keysym.sym = keyMapping[i])
+                    if(e.key.keysym.sym == keyMapping[i])
                         chip->updateKey(i, 1);
                 }
             }
 
             if(e.type == SDL_KEYUP){
                 for(int i = 0; i < 16; i++){
-                    if(e.key.keysym.sym = keyMapping[i])
+                    if(e.key.keysym.sym == keyMapping[i])
                         chip->updateKey(i, 0);
                 }
             }
         }
         //Draw the screen
         if(chip->drawFlag){
-            for(int i = 0; i < 2048; i++){
-                uint8_t pixel = chip->display[i];
-                display[i] = (0x00FFFFFF * pixel) | 0xFF000000;
-            }
+            for(int i = 0; i < 2048; i++)
+                gs->pixels[i] = ((chip->display[i] * 0xBB7700) | 0xFF000000);
 
-            gs->draw(display);
+            gs->draw();
         }
-        SDL_Delay(20);
+
+        if(chip->soundFlag){
+            audio->playBeep();
+        }
+
+        SDL_Delay(GAME_DELAY);
     }
     delete gs;
     delete chip;
+    delete audio;
 }

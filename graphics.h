@@ -12,7 +12,10 @@ class GameScreen {
         const static int WIDTH;
         const static int HEIGHT;
         
-        void draw(Uint32 *pixels);
+        //Temporary buffer for drawing
+        Uint32 pixels[2048];
+
+        void draw();
 
         GameScreen();
         ~GameScreen();

@@ -61,7 +61,6 @@ void Chip8::init() {
 }
 
 //Load the specified rom into our 'memory'
-//Todo: Add some length checks and use a relative path
 void Chip8::loadRom(std::string rom) {
     std::ifstream romFile(rom, std::ios::binary | std::ios::ate);
     if(romFile.is_open()){
@@ -87,19 +86,20 @@ void Chip8::updateKey(int index, uint8_t val){
 void Chip8::cycle() {
     //Load in the current opcode
     opcode = (memory[PC] << 8) | (memory[PC + 1]);
+
+    soundFlag = true;
     drawFlag = false;
 
     //Used for convenience
     unsigned short X = (opcode & 0x0F00) >> 8;
     unsigned short Y = (opcode & 0x00F0) >> 4;
 
+    //Used within various cases
     unsigned short xCord;
     unsigned short yCord;
     unsigned short height;
 
     bool keyPressed;
-
-    std::cout << "PC = " << PC << " : " << std::hex << opcode << "(" << std::dec << opcode << ")" << std::endl;
 
     //Take action based on the specific opcode.
     switch(opcode & 0xF000) {
@@ -246,13 +246,13 @@ void Chip8::cycle() {
             PC += 2;
             break;
         case 0xE000:
-            switch(opcode & 0x000F){
-                case 0x000E:
+            switch(opcode & 0x00FF){
+                case 0x009E:
                     if(keyboard[reg[X]] == 1)
                         PC += 2;
                     PC += 2;
                     break;
-                case 0x0001:
+                case 0x00A1:
                     if(keyboard[reg[X]] != 1)
                         PC += 2;
                     PC += 2;
@@ -271,7 +271,6 @@ void Chip8::cycle() {
                 case 0x000A:
                     keyPressed = false;
                     for(int i = 0; i < 16; i++){
-                        bool keyPressed = false;
                         if(keyboard[i] == 1){
                             keyPressed = true;
                             reg[X] = i;
@@ -311,12 +310,14 @@ void Chip8::cycle() {
                     for(int i = 0; i <= X; i++){
                         memory[I + i] = reg[i];
                     }
+                    I += X + 1;
                     PC += 2;
                     break;
                 case 0x0065:
                     for(int i = 0; i <= X; i++){
                         reg[i] = memory[I + i];
                     }
+                    I += X + 1;
                     PC += 2;
                     break;
                 default:
@@ -332,4 +333,6 @@ void Chip8::cycle() {
         delayTimer--;
     if (soundTimer > 0)
         soundTimer--;
+
+    soundFlag = (soundTimer != 0);
 }

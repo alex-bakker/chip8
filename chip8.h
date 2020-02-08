@@ -33,6 +33,7 @@ class Chip8 {
 
         static const int MEM_START;
         bool drawFlag;
+        bool soundFlag;
         void cycle();
         void init();
         void loadRom(std::string rom);
