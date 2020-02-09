@@ -9,4 +9,10 @@ Run the executable with `./chip8 <path-to-rom> <clock speed>`
 
 It seems some games were meant to be run at much lower clock speeds thus I parameterized this value. Normally this value should be 1.3 and should never be set to more than 7.
 
+![](imgs/Brix.png)
+Example of the classic Brix game
+
+## Misc
+Thanks to Laurence Muller and his excellent [article.](http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/)
+
 [Link to bunch of chip8 games.](https://www.zophar.net/pdroms/chip8/chip-8-games-pack.html)
