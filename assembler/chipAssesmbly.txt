@@ -1,0 +1,13 @@
+#Clear the screen
+CLEAR: CLS
+RET
+CALL 122 $12
+
+TEST:
+OR $6, $14
+#Looks good
+LOAD: LD $14, 22
+DRW $5, $4, 123
+JP CLEAR
+
+#Final
