@@ -4,6 +4,7 @@
 #include "DFA.h"
 #include "Token.h"
 #include "ScanningExceptions.h"
+#include "builder.h"
 
 std::string getKindString(Token::Kind kind){
     switch (kind) {
@@ -39,11 +40,32 @@ void printToken(const Token &token) {
 }
 
 std::map<std::string, int> symbolTable;
+std::vector<uint16_t> opcodes;
 
-/**
- * TODO: Will organize these by there first hex value (1, 2, ...f) 
- */
 bool synthesize(const std::vector<Token> &tokens) {
+    std::string cmd = tokens.at(0).getLexeme();
+    if(cmd == "CLS" || cmd == "RET") {
+        //buildZeroCommands
+    } else if(cmd == "JUMP" || cmd == "CALL" || cmd == "LD" || cmd == "JUMPI") {
+        //buildMemAddress
+        buildMemAddress(tokens, opcodes, symbolTable);
+    } else if(cmd == "SKP" || cmd == "SKPN" || cmd == "LDC" || cmd == "ADD" || cmd == "RND") {
+
+    } else if(cmd == "SKPR" || cmd == "SKPRN") {
+
+    } else if(cmd == "COPY" || cmd == "OR" || cmd == "AND" || cmd == "XOR" || cmd == "ADDC" || cmd == "SUB" || cmd == "SHR" || cmd == "SUBC" || cmd == "SHL") {
+
+    } else if(cmd == "DRW") {
+
+    } else if(cmd == "SKPK" || cmd == "SKPKN") {
+
+    } else if(cmd == "LDT" || cmd == "KEY" || cmd == "SETT" || cmd == "SETS" || cmd == "ADDI" || cmd == "LDSP" || cmd == "BCD" || cmd == "SAVE" || cmd == "LDS") {
+
+    } else if(cmd == "SYS") {
+        //Do nothing
+    } else {
+        std::cerr << "ERROR, " << cmd << " is not a valid instruciton." << std::endl;
+    }
 }
 
 int main(int argc, char* argv[]) {

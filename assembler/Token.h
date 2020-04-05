@@ -20,7 +20,8 @@ class Token {
             NUM,
             COMMENT,
             COMMA,
-            WHITESPACE
+            WHITESPACE,
+            ZERO
         };
         
         /**
@@ -31,6 +32,7 @@ class Token {
 
         Kind getKind() const;
         std::string getLexeme() const;
+        int getValue() const;
 
     private:
         Kind kind;

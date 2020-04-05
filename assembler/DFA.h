@@ -17,7 +17,9 @@ class DFA {
             COMMENT,
             COMMA,
             WHITESPACE,
+            ZERO,
 
+            ZEROX,
             START,
             DOLLAR, 
             ERROR,
