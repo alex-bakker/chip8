@@ -1,1 +1,2 @@
-JUMP 0x30
+LABEL:
+ADDC $4 $4

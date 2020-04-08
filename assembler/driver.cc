@@ -45,26 +45,26 @@ std::vector<uint16_t> opcodes;
 bool synthesize(const std::vector<Token> &tokens) {
     std::string cmd = tokens.at(0).getLexeme();
     if(cmd == "CLS" || cmd == "RET") {
-        //buildZeroCommands
+        return(buildZeroCommands(tokens, opcodes));
     } else if(cmd == "JUMP" || cmd == "CALL" || cmd == "LD" || cmd == "JUMPI") {
-        //buildMemAddress
-        buildMemAddress(tokens, opcodes, symbolTable);
+        return(buildMemAddress(tokens, opcodes, symbolTable));
     } else if(cmd == "SKP" || cmd == "SKPN" || cmd == "LDC" || cmd == "ADD" || cmd == "RND") {
-
+        return(buildRegNum(tokens, opcodes));
     } else if(cmd == "SKPR" || cmd == "SKPRN") {
-
+        return(buildTwoReg(tokens, opcodes));
     } else if(cmd == "COPY" || cmd == "OR" || cmd == "AND" || cmd == "XOR" || cmd == "ADDC" || cmd == "SUB" || cmd == "SHR" || cmd == "SUBC" || cmd == "SHL") {
-
+        return(buildTwoRegEight(tokens, opcodes));
     } else if(cmd == "DRW") {
-
+        return(buildTwoRegNum(tokens, opcodes));
     } else if(cmd == "SKPK" || cmd == "SKPKN") {
-
+        return(buildKey(tokens, opcodes));
     } else if(cmd == "LDT" || cmd == "KEY" || cmd == "SETT" || cmd == "SETS" || cmd == "ADDI" || cmd == "LDSP" || cmd == "BCD" || cmd == "SAVE" || cmd == "LDS") {
-
+        return(buildReg(tokens, opcodes));
     } else if(cmd == "SYS") {
-        //Do nothing
+        return true;
     } else {
         std::cerr << "ERROR, " << cmd << " is not a valid instruciton." << std::endl;
+        return false;
     }
 }
 
@@ -123,13 +123,19 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    //At this point we have correctly built a Symbol table and removed all Labels, Comments, and Whitespace from our tokenized program.
-    for(auto const &tokens  : tokenizedProgram){
+    //At this point we have correctly built a Symbol Table and removed all Labels, Comments, and Whitespace from our tokenized program.
+    for(auto const &tokens : tokenizedProgram){
         if(!synthesize(tokens))
             return 1;
     }
-
+    
+    std::cout << "Hi";
+    for(auto const &op : opcodes) {
+        std::cout << std::hex << op << std::endl;
+    }
+/*
     for(auto const &label : symbolTable) {
         std::cout << label.first << " : " << std::hex << "0x" << label.second << std::endl;
     }
+*/
 }
