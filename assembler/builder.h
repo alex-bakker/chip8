@@ -24,7 +24,6 @@ bool buildRegNum(const std::vector<Token> &tokens, std::vector<uint16_t> &opcode
  */
 bool buildTwoReg(const std::vector<Token> &tokens, std::vector<uint16_t> &opcodes);
 
-
 /**
  * Construct the opcode for commands with two registers and whos first digit is 0x8.
  */

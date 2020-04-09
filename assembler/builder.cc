@@ -109,7 +109,6 @@ bool buildRegNum(const std::vector<Token> &tokens, std::vector<uint16_t> &opcode
     else prefix == 0xC;
 
     opcodes.push_back(opcode | (prefix << 12));
-    std::cout << "HI\n";
     return true;
 }
 
