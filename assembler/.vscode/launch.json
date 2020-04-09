@@ -8,7 +8,7 @@
             "name": "g++ - Build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/assemble.out",
+            "program": "${workspaceFolder}/src/assemble.out",
             "args": ["chipAssesmbly.txt"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

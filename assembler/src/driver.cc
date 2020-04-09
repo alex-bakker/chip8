@@ -67,8 +67,8 @@ bool synthesize(const std::vector<Token> &tokens) {
 
 int main(int argc, char* argv[]) {
     //Verify the number of arguments are correct
-    if(argc != 2){
-        std::cout << "Incorrect arguments. Pass in filename as single argument.\n";
+    if(argc != 3 && argc != 4){
+        std::cout << "Incorrect arguments. Pass in src file and output file name as arguments, with an option -st to show the symbol table.\n";
         return 1;
     }
 
@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
             }
 
         } catch(TokenError &e) {
-            std::cout << "Error on line " << lineNumber << " " << e.what() << std::endl;
+            std::cerr << "Error on line " << lineNumber << " " << e.what() << std::endl;
             return 1;
         }
     }
@@ -128,12 +128,13 @@ int main(int argc, char* argv[]) {
             return 1;
     }
     
-    std::ofstream wf("file.bin", std::ios::out | std::ios::binary);
+    std::ofstream wf(argv[2], std::ios::out | std::ios::binary);
     if(!wf) {
-        std::cout << "Could not open file." << std::endl;
+        std::cerr << "Could not write to file " << argv[2] << "." << std::endl;
         return 1; 
     }
     
+    //Switch byte order of a single opcode
     std::vector<char> bigEndOpcodes;
     for(auto const &op : opcodes) {
         bigEndOpcodes.push_back(op >> 8);
@@ -143,32 +144,13 @@ int main(int argc, char* argv[]) {
     wf.write(&bigEndOpcodes[0], bigEndOpcodes.size() * sizeof(char));
     wf.close();
     if(!wf.good()) {
+        std::cerr << "Failed to write binary." << std::endl;
         return 1;
     }
-
-    std::ifstream input ("file.bin", std::ios::in | std::ios::binary | std::ios::ate);
-    std::streampos size;
-    char *memblock;
-    if(input.is_open()){
-        size = input.tellg();
-        memblock = new char[size];
-        input.seekg(0, std::ios::beg);
-        input.read(memblock, size);
-        input.close();
+    
+    if(argc == 4 && std::string(argv[3]) == "-st"){
+        for(auto const &label : symbolTable) {
+            std::cout << label.first << " : " << std::hex << "0x" << label.second << std::endl;
+        }
     }
-
-    for(int i = 0; i < (int)size; i+=2) {
-        uint8_t a = 0;
-        uint8_t b = 0;
-        a = memblock[i];
-        b = memblock[i+1];
-        uint16_t opcode = (a << 8)| b;
-        std::cout << std::hex << opcode << std::endl;
-    }
-    delete[] memblock;
-/*
-    for(auto const &label : symbolTable) {
-        std::cout << label.first << " : " << std::hex << "0x" << label.second << std::endl;
-    }
-*/
 }
