@@ -5,7 +5,7 @@ language based on [Cowgods CHIP-8 Reference](http://devernay.free.fr/hacks/chip8
 Both the Emulator and Assembler are written from scratch entirely in C++. Detailed information regarding both projects
 can be found in the README of their respective folders. 
 
-ROMS for tons of CHIP-8 games can be found ![here](https://www.zophar.net/pdroms/chip8/chip-8-games-pack.html).
+ROMS for tons of CHIP-8 games can be found [here](https://www.zophar.net/pdroms/chip8/chip-8-games-pack.html).
 
 ### Pictures
 ![](imgs/Brix.png)
