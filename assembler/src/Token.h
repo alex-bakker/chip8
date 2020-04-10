@@ -19,7 +19,6 @@ class Token {
             VARIABLE,
             NUM,
             COMMENT,
-            COMMA,
             WHITESPACE,
             ZERO
         };

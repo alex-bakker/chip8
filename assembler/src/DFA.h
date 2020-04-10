@@ -15,7 +15,6 @@ class DFA {
             VARIABLE,
             NUM,
             COMMENT,
-            COMMA,
             WHITESPACE,
             ZERO,
 
