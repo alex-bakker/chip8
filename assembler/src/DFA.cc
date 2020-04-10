@@ -12,7 +12,7 @@ DFA::DFA() {
     initializeTransitionFunction();
 
     //Initialize the set of Accepting States
-    acceptingStates = {ID, LABEL, VARIABLE, COMMA, COMMENT, WHITESPACE, NUM};
+    acceptingStates = {ID, LABEL, VARIABLE, COMMENT, WHITESPACE, NUM, ZERO};
 
     //Create the mapping from State to Kind
     addKindFromStateMapping(ID, Kind::ID);
@@ -20,23 +20,25 @@ DFA::DFA() {
     addKindFromStateMapping(NUM, Kind::NUM);
     addKindFromStateMapping(VARIABLE, Kind::VARIABLE);
     addKindFromStateMapping(COMMENT, Kind::COMMENT);
-    addKindFromStateMapping(COMMA, Kind::COMMA);
     addKindFromStateMapping(WHITESPACE, Kind::WHITESPACE);
+    addKindFromStateMapping(ZERO, Kind::ZERO);
 
     //Build the actual DFA transitions
     createTransition(START, isalpha, ID);
-    createTransition(START, isdigit, NUM);
+    createTransition(START, "123456789", NUM);
     createTransition(START, "#", COMMENT);
     createTransition(START, isspace, WHITESPACE);
-    createTransition(START, ",", COMMA);
     createTransition(START, "$", DOLLAR);
+    createTransition(START, "0", ZERO);
     createTransition(ID, isalpha, ID);
     createTransition(ID, ":", LABEL);
     createTransition(WHITESPACE, isspace, WHITESPACE);
     createTransition(DOLLAR, isdigit, VARIABLE);
     createTransition(VARIABLE, isdigit, VARIABLE);
     createTransition(COMMENT, [](int c) -> int {return c != '\n';}, COMMENT);
-    createTransition(NUM, isdigit, NUM);
+    createTransition(NUM, "0123456789abcdefABCDEF", NUM);
+    createTransition(ZERO, "x", ZEROX);
+    createTransition(ZEROX, "0123456789abcdefABCDEF", NUM);
 }
 
 void DFA::initializeTransitionFunction() {

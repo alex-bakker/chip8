@@ -15,9 +15,10 @@ class DFA {
             VARIABLE,
             NUM,
             COMMENT,
-            COMMA,
             WHITESPACE,
+            ZERO,
 
+            ZEROX,
             START,
             DOLLAR, 
             ERROR,

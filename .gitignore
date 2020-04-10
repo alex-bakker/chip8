@@ -1,2 +1,4 @@
 .vscode/*
-chip8
+chip/chip8
+assembler/.vscode/*
+assembler/chipAssembler
