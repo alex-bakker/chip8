@@ -29,6 +29,7 @@ enables the forward referencing of labels.
 
 ## Mnemonics Table  
 All `0xnnn` can be replaced with a label name, and all numbers must be written in hex.  
+Comments are to be written on independent lines and are commenced with the `#` character.  
 View [Cowgods Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#1nnn) for what each opcode does.
 
 | Mnemonic      | Opcode      
